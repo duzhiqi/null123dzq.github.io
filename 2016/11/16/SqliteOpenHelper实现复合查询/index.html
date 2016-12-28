@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <title>SqliteOpenHelper实现复合查询 | 小杜のBlog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="数据库在android是经常会使用到的东西, 但毕竟是在移动端的东西，都是一些比较轻量级的操作，无非就是增删该查，现在也有很多数据库的框架可以使用，能够很方便的简化对数据库的操作。最近在项目用到数据库，项目本身就比较小实在没有必要为了简化操作去集成一个框架进来。然而确是碰到了稍微复杂一点数据库查询，自己花了点时间去整理了一下在次记录下来。
+SqliteOpenHelper
+SQLite，是一款轻型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SqliteOpenHelper实现复合查询">
+<meta property="og:url" content="http://yoursite.com/2016/11/16/SqliteOpenHelper实现复合查询/index.html">
+<meta property="og:site_name" content="小杜のBlog">
+<meta property="og:description" content="数据库在android是经常会使用到的东西, 但毕竟是在移动端的东西，都是一些比较轻量级的操作，无非就是增删该查，现在也有很多数据库的框架可以使用，能够很方便的简化对数据库的操作。最近在项目用到数据库，项目本身就比较小实在没有必要为了简化操作去集成一个框架进来。然而确是碰到了稍微复杂一点数据库查询，自己花了点时间去整理了一下在次记录下来。
+SqliteOpenHelper
+SQLite，是一款轻型">
+<meta property="og:image" content="http://ofhdiyvaa.bkt.clouddn.com/sqlite.png">
+<meta property="og:image" content="http://ofhdiyvaa.bkt.clouddn.com/mixQuery.png">
+<meta property="og:updated_time" content="2016-12-14T07:02:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SqliteOpenHelper实现复合查询">
+<meta name="twitter:description" content="数据库在android是经常会使用到的东西, 但毕竟是在移动端的东西，都是一些比较轻量级的操作，无非就是增删该查，现在也有很多数据库的框架可以使用，能够很方便的简化对数据库的操作。最近在项目用到数据库，项目本身就比较小实在没有必要为了简化操作去集成一个框架进来。然而确是碰到了稍微复杂一点数据库查询，自己花了点时间去整理了一下在次记录下来。
+SqliteOpenHelper
+SQLite，是一款轻型">
+<meta name="twitter:image" content="http://ofhdiyvaa.bkt.clouddn.com/sqlite.png">
+  
+    <link rel="alternative" href="/atom.xml" title="小杜のBlog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="//favicon.png">
+  
+  <script src="/style.js"></script>
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div class="left-col">
+      <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img src="http://store.aimon.cn/Product/photo/700/2012101905747.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">duzhiqi</a></h1>
+		</hgroup>
+
+		
+
+		<nav class="header-menu">
+			<ul>
+			
+				<li><a href="/">主页</a></li>
+	        
+				<li><a href="/tags/随笔">随笔</a></li>
+	        
+			</ul>
+		</nav>
+		<nav class="header-smart-menu">
+	        
+    		
+    			
+    			<a class="js-smart-menu" data-idx="0" href="javascript:void(0)">所有文章</a>
+    			
+    			
+            
+    			
+    			<a class="js-smart-menu" data-idx="1" href="javascript:void(0)">标签</a>
+    			
+    			
+            
+    			
+            
+    			
+    			<a class="js-smart-menu" data-idx="2" href="javascript:void(0)">关于我</a>
+    			
+    			
+            
+		</nav>
+		<nav class="header-nav">
+			<div class="social">
+				
+					<a class="github" target="_blank" href="https://github.com/null123dzq" title="github">github</a>
+		        
+					<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/du-zhi-qi" title="zhihu">zhihu</a>
+		        
+			</div>
+		</nav>
+	</header>		
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"><i class="icon-list"></i></div>
+  		<h1 class="header-author js-mobile-header hide">duzhiqi</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				
+					<img src="http://store.aimon.cn/Product/photo/700/2012101905747.jpg" class="js-avatar">
+				
+			</div>
+			<hgroup>
+			  <h1 class="header-author">duzhiqi</h1>
+			</hgroup>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/tags/随笔">随笔</a></li>
+		        
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/null123dzq" title="github">github</a>
+			        
+						<a class="zhihu" target="_blank" href="https://www.zhihu.com/people/du-zhi-qi" title="zhihu">zhihu</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div class="body-wrap">
+        <article id="post-SqliteOpenHelper实现复合查询" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SqliteOpenHelper实现复合查询
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>数据库在android是经常会使用到的东西, 但毕竟是在移动端的东西，都是一些比较轻量级的操作，无非就是增删该查，现在也有很多数据库的框架可以使用，能够很方便的简化对数据库的操作。最近在项目用到数据库，项目本身就比较小实在没有必要为了简化操作去集成一个框架进来。然而确是碰到了稍微复杂一点数据库查询，自己花了点时间去整理了一下在次记录下来。</p>
+<h2 id="SqliteOpenHelper"><a href="#SqliteOpenHelper" class="headerlink" title="SqliteOpenHelper"></a>SqliteOpenHelper</h2><blockquote>
+<p>SQLite，是一款轻型的数据库，是遵守ACID的关系型数据库管理系统，它包含在一个相对小的C库中。它是D.RichardHipp建立的公有领域项目。它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如 Tcl、C#、PHP、Java等，还有ODBC接口，同样比起Mysql、PostgreSQL这两款开源的世界著名数据库管理系统来讲，它的处理速度比他们都快。SQLite第一个Alpha版本诞生于2000年5月。 至2015年已经有15个年头，SQLite也迎来了一个版本 SQLite 3已经发布</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="sqlite普通查询"><a href="#sqlite普通查询" class="headerlink" title="sqlite普通查询"></a>sqlite普通查询</h2><p>SqliteOpenHelper本身是个android自带的用来管理数据库的一个类，可以很方便的对数据库进行创建和管理，增删改查。通常我们查询表使用的是query()方法。</p>
+<p><img src="http://ofhdiyvaa.bkt.clouddn.com/sqlite.png" alt="SqliteDB.query()" title="SqliteDB.query()"></p>
+<p>如上图所示，通过query()我们就能轻松地对数据库实现数据的分页，排序，筛选查询。比如以下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> List&lt;AdMsg&gt; <span class="title">getMsgListByPositionMode</span><span class="params">(<span class="keyword">int</span> positionMode)</span> </span>&#123;</div><div class="line">        List&lt;AdMsg&gt; list = <span class="keyword">null</span>;</div><div class="line">        rd = helper.getReadableDatabase();</div><div class="line">        <span class="keyword">if</span> (rd.isOpen()) &#123;</div><div class="line">            AdMsg msg;</div><div class="line">            list = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">            Cursor cursor = rd.query(AdvListDBInfo.TABLE_NAME_1, <span class="keyword">null</span>, AdvListDBInfo.COLUMN_POSITION_MODE + <span class="string">"=?"</span>, <span class="keyword">new</span> String[]&#123;positionMode + <span class="string">""</span>&#125;, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</div><div class="line">            <span class="keyword">while</span> (cursor.moveToNext()) &#123;</div><div class="line">                msg = <span class="keyword">new</span> AdMsg();</div><div class="line">                msg.setAdCode(cursor.getString(<span class="number">1</span>));</div><div class="line">                msg.setAdShowType((<span class="keyword">byte</span>) cursor.getInt(<span class="number">2</span>));</div><div class="line">                msg.setAdType(cursor.getShort(<span class="number">3</span>));</div><div class="line">                msg.setApkVersion(cursor.getString(<span class="number">4</span>));</div><div class="line">                msg.setApkVersionInt(cursor.getLong(<span class="number">5</span>));</div><div class="line">                msg.setAppPkgnameList(cursor.getString(<span class="number">6</span>));</div><div class="line">                msg.setChannelList(cursor.getString(<span class="number">7</span>));</div><div class="line">                msg.setClickLimit(cursor.getInt(<span class="number">8</span>));</div><div class="line">                msg.setDeliveryApp(cursor.getString(<span class="number">9</span>));</div><div class="line">                msg.setDeliveryArea(cursor.getString(<span class="number">10</span>));</div><div class="line">                msg.setDeliveryChannel(cursor.getString(<span class="number">11</span>));</div><div class="line">                msg.setDisplayContent(cursor.getString(<span class="number">12</span>));</div><div class="line">                msg.setDisplayEndDate(cursor.getString(<span class="number">13</span>));</div><div class="line">                msg.setDisplayEndTime(cursor.getString(<span class="number">14</span>));</div><div class="line">                msg.setDisplayStartDate(cursor.getString(<span class="number">15</span>));</div><div class="line">                msg.setDisplayStartTime(cursor.getString(<span class="number">16</span>));</div><div class="line">                msg.setDisplayTimeSeparate(cursor.getInt(<span class="number">17</span>));</div><div class="line">                msg.setDisplayTitle(cursor.getString(<span class="number">18</span>));</div><div class="line">                msg.setImageUrl(cursor.getString(<span class="number">19</span>));</div><div class="line">                msg.setLinkUrl(cursor.getString(<span class="number">20</span>));</div><div class="line">                msg.setPackageName(cursor.getString(<span class="number">21</span>));</div><div class="line">                msg.setPositionMode(cursor.getInt(<span class="number">22</span>));</div><div class="line">                msg.setSortWeight(cursor.getInt(<span class="number">23</span>));</div><div class="line">                list.add(msg);</div><div class="line">            &#125;</div><div class="line">            cursor.close();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> list;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<h2 id="sqlite复合查询"><a href="#sqlite复合查询" class="headerlink" title="sqlite复合查询"></a>sqlite复合查询</h2><p>但是有很多情况这几个并不能满足我们的需求的。比如有一张User表，需要查询age都是”1”或者”2”的时候，此为情形一，或者age为”2”、firstName为”xiao”的时候，此为情形二，query就很难满足我们的需求了。于是SqliteOpenHelper提供了rawQuery()方法来帮助我们解决这个问题。</p>
+<p><img src="http://ofhdiyvaa.bkt.clouddn.com/mixQuery.png" alt="mixQuery.png" title="mixQuery.png"></p>
+<p>能够清楚地看到这个方法是需要我们使用sql语句作为字符串传入进行查询的。</p>
+<h5 id="在情形一中，我们的需求是查询满足某一个条件的数据就将其取出。这里我是用sql中的”in”关键字作为查询判断。"><a href="#在情形一中，我们的需求是查询满足某一个条件的数据就将其取出。这里我是用sql中的”in”关键字作为查询判断。" class="headerlink" title="在情形一中，我们的需求是查询满足某一个条件的数据就将其取出。这里我是用sql中的”in”关键字作为查询判断。"></a>在情形一中，我们的需求是查询满足某一个条件的数据就将其取出。这里我是用sql中的”in”关键字作为查询判断。</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">table</span> <span class="keyword">WHERE</span> selection <span class="keyword">IN</span> (<span class="string">'selectionArgs1'</span>, <span class="string">'selectionArgs2'</span>, <span class="string">'selectionArgs3'</span>, ...);</div></pre></td></tr></table></figure>
+<p>具体实现代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> List&lt;User&gt; <span class="title">queryByAge</span><span class="params">(String[] ages)</span> </span>&#123;</div><div class="line">    SQLiteDatabase db = helper.getReadableDatabase();</div><div class="line">    List&lt;User&gt; list = <span class="keyword">null</span>;</div><div class="line">    User user;</div><div class="line">    <span class="keyword">if</span> (db.isOpen()) &#123;</div><div class="line">        list = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        String sql = <span class="string">"select * from "</span> + TABLE + <span class="string">" where age in ("</span>;</div><div class="line">        <span class="keyword">for</span> (String age : ages) &#123;</div><div class="line">            sql = sql + <span class="string">"\'"</span> + age + <span class="string">"\'"</span> + <span class="string">", "</span>;</div><div class="line">        &#125;</div><div class="line">        sql = sql + <span class="string">"\'"</span> + ages[<span class="number">0</span>] + <span class="string">"\'"</span> + <span class="string">")"</span>;</div><div class="line">        Cursor cursor = db.rawQuery(sql, <span class="keyword">null</span>);</div><div class="line">        <span class="keyword">while</span> (cursor.moveToNext()) &#123;</div><div class="line">            user = <span class="keyword">new</span> User();</div><div class="line">            user.setAge(cursor.getInt(<span class="number">1</span>));</div><div class="line">            user.setFirstName(cursor.getString(<span class="number">2</span>));</div><div class="line">            user.setLastName(cursor.getString(<span class="number">3</span>));</div><div class="line">            list.add(user);</div><div class="line">        &#125;</div><div class="line">        cursor.close();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> list;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h5 id="在情形二中，我们的需求是查询同时满足多个条件的数据蔡将其取出。使用了sql中的”and”关键字进行查询。"><a href="#在情形二中，我们的需求是查询同时满足多个条件的数据蔡将其取出。使用了sql中的”and”关键字进行查询。" class="headerlink" title="在情形二中，我们的需求是查询同时满足多个条件的数据蔡将其取出。使用了sql中的”and”关键字进行查询。"></a>在情形二中，我们的需求是查询同时满足多个条件的数据蔡将其取出。使用了sql中的”and”关键字进行查询。</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">table</span> <span class="keyword">WHERE</span> selection = selectionArgs1 <span class="keyword">AND</span> selection = selectionArgs2 <span class="keyword">AND</span> selection = selectionArgs3;</div></pre></td></tr></table></figure>
+<p>具体实现代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> List&lt;User&gt; <span class="title">query</span><span class="params">(HashMap&lt;String, String&gt; params)</span> </span>&#123;</div><div class="line">    SQLiteDatabase db = helper.getReadableDatabase();</div><div class="line">    List&lt;User&gt; list = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">if</span> (db.isOpen()) &#123;</div><div class="line">        list = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        String sql = <span class="string">"select * from "</span> + TABLE + <span class="string">" where "</span>;</div><div class="line">        <span class="keyword">for</span> (String key : params.keySet()) &#123;</div><div class="line">            sql += key + <span class="string">" = "</span> + <span class="string">"\'"</span> + params.get(key) + <span class="string">"\'"</span> + <span class="string">" and "</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">int</span> index = sql.lastIndexOf(<span class="string">"and"</span>);</div><div class="line">        sql = sql.substring(<span class="number">0</span>, index);</div><div class="line">        User user;</div><div class="line">        Cursor cursor = db.rawQuery(sql, <span class="keyword">null</span>);</div><div class="line">        <span class="keyword">while</span> (cursor.moveToNext()) &#123;</div><div class="line">            user = <span class="keyword">new</span> User();</div><div class="line">            user.setAge(cursor.getInt(<span class="number">1</span>));</div><div class="line">            user.setFirstName(cursor.getString(<span class="number">2</span>));</div><div class="line">            user.setLastName(cursor.getString(<span class="number">3</span>));</div><div class="line">            list.add(user);</div><div class="line">        &#125;</div><div class="line">        cursor.close();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> list;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上代码的demo详见我<a href="https://github.com/null123dzq/SqliteOpenHelperTest" target="_blank" rel="external">github</a>.</p>
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      <a href="/2016/11/16/SqliteOpenHelper实现复合查询/" class="archive-article-date">
+  	<time datetime="2016-11-16T11:55:30.000Z" itemprop="datePublished"><i class="icon-clock"></i>2016-11-16</time>
+</a>
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags"></i>
+		<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/android/">android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sqlite/">sqlite</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/数据库/">数据库</a></li></ul>
+	</div>
+
+      
+
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2016/11/02/Glide实现加载圆形图片/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Glide实现加载圆形图片</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+<div class="share_jia">
+	<!-- JiaThis Button BEGIN -->
+	<div class="jiathis_style">
+		<span class="jiathis_txt">Share to: &nbsp; </span>
+		<a class="jiathis_button_facebook"></a> 
+	    <a class="jiathis_button_twitter"></a>
+	    <a class="jiathis_button_plus"></a> 
+	    <a class="jiathis_button_tsina"></a>
+		<a class="jiathis_button_cqq"></a>
+		<a class="jiathis_button_douban"></a>
+		<a class="jiathis_button_weixin"></a>
+		<a class="jiathis_button_tumblr"></a>
+    <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jtico jtico_jiathis" target="_blank"></a>
+	</div>
+	<script type="text/javascript" src="//v3.jiathis.com/code/jia.js?uid=1405949716054953" charset="utf-8"></script>
+	<!-- JiaThis Button END -->
+</div>
+
+
+
+
+
+
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="SqliteOpenHelper实现复合查询" data-title="SqliteOpenHelper实现复合查询" data-url="http://yoursite.com/2016/11/16/SqliteOpenHelper实现复合查询/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"duzhiqi"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+
+      </div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2016 duzhiqi
+    	</div>
+      <div class="footer-right">
+      	<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      </div>
+
+      本站总访问量 <span id="busuanzi_value_site_pv"></span> 次, 访客数 <span id="busuanzi_value_site_uv"></span> 人次, 本文总阅读量 <span id="busuanzi_value_page_pv"></span> 次
+
+    </div>
+  </div>
+</footer>
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    </div>
+    <script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: false,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false,
+		root: "/",
+		innerArchive: true
+	}
+</script>
+
+<script src="/./main.js"></script>
+
+
+    
+<div class="tools-col">
+  <ul class="btn-wrap">
+    
+      <li class="chose" data-hook="tools-section-all"><span class="text">全部</span><i class="icon-book"></i></li>
+    
+    
+      <li data-hook="tools-section-tag"><span class="text">标签</span><i class="icon-price-tags"></i></li>
+    
+    
+    
+      <li data-hook="tools-section-me"><span class="text">我</span><i class="icon-smile"></i></li>
+    
+  </ul>
+  <div class="tools-wrap">
+    
+    	<section class="tools-section tools-section-all chose">
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-tag">
+    			<div class="widget tagcloud" id="js-tagcloud">
+    				<a href="/tags/Annotation/" style="font-size: 10px;">Annotation</a> <a href="/tags/Glide/" style="font-size: 10px;">Glide</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/Rxjava/" style="font-size: 10px;">Rxjava</a> <a href="/tags/android/" style="font-size: 20px;">android</a> <a href="/tags/blog/" style="font-size: 10px;">blog</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/photo/" style="font-size: 10px;">photo</a> <a href="/tags/sqlite/" style="font-size: 10px;">sqlite</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a>
+    			</div>
+    	</section>
+    
+
+    
+
+    
+    	<section class="tools-section tools-section-me">
+  	  	
+  	  		<div class="aboutme-wrap" id="js-aboutme">啦啦啦&lt;br&gt;&lt;br&gt;我是一只写代码的咸鱼&lt;br&gt;撒花！✿✿ヽ(ﾟ▽ﾟ)ノ✿</div>
+  	  	
+    	</section>
+    
+  </div>
+  
+</div>
+    <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+  </div>
+</body>
+</html>
